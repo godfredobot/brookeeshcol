@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+
+{% block head %}
+
+{% load static %}
+{% load custom_tags %}
+
+<title>Become A Member|Brookee-Shcol</title>
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+{% endblock %}
+{% block body %}
+
+{% include "page-section/navbar.html" %}
+
+<div class="container mt-5 ">
+    <h3 class="text-center text-primary mb-5 px-2">Become A Member Of The Community</h3>
+    <form id="memberForm" action="{% url 'members' %}" method="post" class="row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            <label for="validationServer01" class="form-label">First name</label>
+            <!-- <input type="text" class="form-control is-valid" id="validationServer01" value="Mark" required> -->
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+            {% for error in form.first_name.errors %}
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                {{error}}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="validationServer02" class="form-label">Last name</label>
+            <!-- <input type="text" class="form-control is-valid" id="validationServer02" value="Otto" required> -->
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+            {% for error in form.last_name.errors %}
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                {{error}}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="validationServer02" class="form-label">Email</label>
+            <!-- <input type="email" class="form-control is-valid" id="validationServer02" value="Otto" required> -->
+            {{form.email}}
+            {% if form.email.errors %}
+            {% for error in form.email.errors %}
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                {{error}}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="validationServer02" class="form-label">Phone Number</label>
+            <!-- <input type="text" class="form-control is-valid" id="validationServer02" value="Otto" required> -->
+            {{form.phone}}
+            {% if form.phone.errors %}
+            {% for error in form.phone.errors %}
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                {{error}}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+
+
+
+        <div class="col-md-6">
+            <label for="validationServer03" class="form-label">City</label>
+            {{form.city}}
+            <!-- <input type="text" class="form-control is-invalid" id="validationServer03"
+                aria-describedby="validationServer03Feedback" required> -->
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                Please provide a valid city.
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="validationServer04" class="form-label">State</label>
+            {{ form.state }}
+            <!-- <select class="form-select is-invalid" id="validationServer04" aria-describedby="validationServer04Feedback"
+                required>
+                <option selected disabled value="">Choose...</option>
+                <option>...</option>
+            </select> -->
+            <div id="validationServer04Feedback" class="invalid-feedback">
+                Please select a valid state.
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="validationServer05" class="form-label">Zip</label>
+            <!-- <input type="text" class="form-control is-invalid" id="validationServer05"
+                aria-describedby="validationServer05Feedback" required> -->
+            {{form.zip_code}}
+            <div id="validationServer05Feedback" class="invalid-feedback">
+                Please provide a valid zip.
+            </div>
+        </div>
+
+        <div class="col-12 mb-3">
+            <button type="submit" id="become-a-member-btn"
+                class="btn btn-light text-danger w-100 my-4 d-flex align-items-center justify-content-center">Become a
+                member</button>
+        </div>
+    </form>
+
+</div>
+
+<script src="../static/js/library/jquery-3.6.0.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+    const test = (e)=>{
+        e.preventDefault();
+        console.log(e);
+        console.log(paymentForm);
+    }
+    const paymentForm = $('#memberForm');
+    paymentForm.on('submit', test); //to be changed to paywithpaystack
+    
+
+    function payWithPaystack(e) {
+        e.preventDefault();
+
+        let handler = PaystackPop.setup({
+            key: "{{ 'PAYSTACK_PUBLIC_KEY'|get_setting }}", // public key
+            email: e.target.email.value,
+            amount: parseInt("{{ 'BECOME_MEMBER_PRICE'|get_setting }}") * 100,
+            currency: 'NGN',
+
+            callback: function (response) {
+                //This runs after the payment is completed successfully
+                var reference = response.reference;
+                alert('Payment complete! Reference: ' + reference);
+                console.log(response);
+
+                // validate payment from the backend throught ajax
+                // $.ajax({
+                //     url: "{% url 'initiate_payment' %}",
+                //     method: 'post',
+                //     data: {
+                //         ref : response.reference,
+                //         personal_info: paymentForm.data()
+                //     },
+                //     success: function (response) {
+                //     // the transaction status is in response.data.status
+                //     }
+                // });
+            },
+            onClose: function () {
+                alert('Transaction was not completed, window closed.');
+            },
+        });
+
+        handler.openIframe();
+    }
+</script>
+
+{% endblock %}
